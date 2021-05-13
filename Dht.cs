@@ -39,8 +39,8 @@ namespace PiHome
         {
             public const int
                 PullDownTime = 18, // ms
-                BitOneMinTime = 100, // min us, doc: 54 + 70 = 114
-                BitZeroMaxTime = 90, // max us, doc: 54 + 24 = 78
+                BitOneMinTime = 110, // min us, doc: 54 + 70 = 114
+                BitZeroMaxTime = 105, // max us, doc: 54 + 24 = 78
                 DataBits = 40,
                 TotalBits = DataBits + 3; // + start, slave response, stop
         }
