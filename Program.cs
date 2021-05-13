@@ -1,15 +1,11 @@
-﻿using System;
-using Windows.Devices.Gpio;
-using Windows.Media.SpeechSynthesis;
-using Windows.Media.Playback;
-using Iot.Device.Display;
-
+﻿using Iot.Device.Display;
 using Iot.Device.Spi;
-using System.Threading;
 using MQTTnet.Extensions.ManagedClient;
-using System.Threading.Tasks;
+using System;
 using System.Text.Json;
-using Iot.Device.DHTxx;
+using System.Threading;
+using System.Threading.Tasks;
+using Windows.Devices.Gpio;
 
 namespace PiHome
 {
@@ -19,9 +15,8 @@ namespace PiHome
         public struct IoPins
         {
             public const int
-                LED_1 = 2,
-                BTN_1 = 3;
-            //BTN_2 = 4;
+                Led = 8,
+                Button = 7;
         }
         Led _led1;
         Button _btn1;
@@ -41,11 +36,11 @@ namespace PiHome
                 Clk = 17,
                 Mosi = 27,
                 Dc = 22,
-                Reset = 23;
+                Reset = 10;
         }
+        public static readonly byte[] DegreeCharacter = new byte[] { 0x02, 0x05, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00 };
         SoftwareSpi _spi;
         Pcd8544 _display;
-        public static readonly byte[] _degreeCharacter = { 0x00, 0x00, 0x02, 0x05, 0x02 };
 
         class Measurements 
         {
@@ -109,13 +104,10 @@ namespace PiHome
                 return;
             }
 
-            _led1 = new(IoPins.LED_1);
+            _led1 = new(IoPins.Led);
 
-            _btn1 = new(IoPins.BTN_1);
+            _btn1 = new(IoPins.Button);
             _btn1.ButtonPressed += LedSwitch;
-
-            /*btn2 = new(IoPins.BTN_2);
-            btn2.ButtonPressed += SpeakOutMeasurements;*/
 
             _sensor = new(Sensor.Input, Sensor.Output);
             _sensor.MeasurementsRead += OnMeasurementsRead;
@@ -126,7 +118,7 @@ namespace PiHome
             _display = new(DisplayPins.Dc, _spi, DisplayPins.Reset, null);
             _display.Contrast = 63;
             _display.Enabled = true;
-            //_display.CreateCustomCharacter(0xf8, _degreeCharacter.AsSpan().Slice(0, 5));
+            _display.CreateCustomCharacter(0xf8, DegreeCharacter.AsSpan());
 
             _device = new(
                         ClientConnection.DeviceId,
@@ -137,9 +129,6 @@ namespace PiHome
             _device.Commands.Add("led off", LedOff);
             _device.Commands.Add("switch led", LedSwitch);
             _device.ConnectAsync();
-
-            //Speak("Hello");
-            Console.WriteLine("PiHome");
 
             var token = _tokenSource.Token;
             Console.CancelKeyPress += (obj, args) =>
