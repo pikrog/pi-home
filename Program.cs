@@ -128,7 +128,7 @@ namespace PiHome
             _device.Commands.Add("led on", LedOn);
             _device.Commands.Add("led off", LedOff);
             _device.Commands.Add("switch led", LedSwitch);
-            _device.ConnectAsync();
+            await _device.ConnectAsync();
 
             var token = _tokenSource.Token;
             Console.CancelKeyPress += (obj, args) =>
@@ -145,8 +145,10 @@ namespace PiHome
             }
             catch(TaskCanceledException)
             {
-                Console.Out.WriteLine("Tasks cancelled"); 
+                ;
             }
+            await _sensor.Stop();
+            Console.Out.WriteLine("Tasks cancelled");
         }
 
         private void OnReadError(Dht sender, Dht.ErrorType error, int bitsCount)

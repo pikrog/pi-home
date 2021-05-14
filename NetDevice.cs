@@ -77,7 +77,7 @@ namespace PiHome
             }
         }
 
-        public async void ConnectAsync()
+        public async Task ConnectAsync()
         {
             await Client.StartAsync(Options);
         }
